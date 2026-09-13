@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Live Lab</title><link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <header><div class="brand">LIVE LAB</div><div class="sub">Diretta Watch · 0.4.0 · Forebet Gate</div></header>
+  <main>
+    <div class="statusrow"><span id="dot" class="dot"></span><strong id="status">Caricamento…</strong></div>
+    <label class="switchrow"><span>Monitoraggio</span><input id="enabled" type="checkbox"></label>
+
+    <section>
+      <h3>Strategia “Punta OVER 1,5!”</h3>
+      <div class="grid">
+        <label>Da minuto<input id="minMinute" type="number" min="1" max="90"></label>
+        <label>A minuto<input id="maxMinute" type="number" min="1" max="90"></label>
+        <label>xG totale ≥<input id="minXg" type="number" min="0" step="0.05"></label>
+        <label>SOT totali ≥<input id="minSot" type="number" min="0" step="1"></label>
+      </div>
+      <div class="statbadge">🎯 <span id="overallStat"></span></div>
+      <p class="hint">Punteggio richiesto: 0-0. Un solo alert per partita. La quota Over 1,5 viene controllata manualmente.</p>
+    </section>
+
+    <section>
+      <h3>Telegram · iPhone</h3>
+      <label>Bot Token<input id="telegramBotToken" type="password" placeholder="123456:ABC..."></label>
+      <label>Chat ID<input id="telegramChatId" type="text" placeholder="es. 123456789"></label>
+      <p id="telegramStatus" class="hint"></p>
+    </section>
+
+    <section>
+      <h3>Live Lab Web · Forebet Gate</h3>
+      <label>URL Live Lab<input id="liveLabApiUrl" type="url" placeholder="https://live-lab.vercel.app"></label>
+      <label>Ingest Key<input id="liveLabIngestKey" type="password" placeholder="stessa LIVE_LAB_INGEST_KEY di Vercel"></label>
+      <p id="apiStatus" class="hint">Se non configurato o non raggiungibile, il sistema usa UNKNOWN e lascia passare l’alert.</p>
+    </section>
+
+    <section>
+      <div class="sectionhead"><h3>Campionati</h3><span id="leagueCount" class="count"></span></div>
+      <input id="leagueSearch" type="search" placeholder="Cerca campionato…">
+      <div class="miniActions"><button id="selectAll" class="tiny">Tutti</button><button id="selectNone" class="tiny">Nessuno</button></div>
+      <div id="leagueList" class="leagueList"></div>
+      <p class="hint">Whitelist iniziale importata dalla strategia InPlayGuru: 81 campionati. Le modifiche restano salvate nel browser.</p>
+    </section>
+
+    <div class="actions"><button id="save">Salva</button><button id="test" class="secondary">Test Telegram</button></div>
+
+    <section><h3>Ultimi alert</h3><div id="alerts" class="alerts"></div></section>
+  </main>
+<script type="module" src="popup.js"></script>
+</body>
+</html>
