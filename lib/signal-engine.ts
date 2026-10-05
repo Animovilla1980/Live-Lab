@@ -1,4 +1,4 @@
-export const ENGINE_VERSION='0.5.0';
+export const ENGINE_VERSION='0.5.1';
 
 type Stats={minute:number;homeScore:number;awayScore:number;xgHome?:number|null;xgAway?:number|null;sotHome?:number|null;sotAway?:number|null;possessionHome?:number|null;possessionAway?:number|null;dangerousHome?:number|null;dangerousAway?:number|null};
 type Forebet={predictedScore?:string|null;prediction1x2?:string|null;p1?:number|null;p2?:number|null};
@@ -26,7 +26,7 @@ function lateGoal(c:Stats,d:any):Signal{
   if(xg>=1.25){s+=17;r.push(`xG ${xg.toFixed(2)}`);} if(xg>=1.8)s+=7;
   if(sot>=4){s+=15;r.push(`SOT ${sot}`);} if(sot>=7)s+=6;
   if(d.xgHome+d.xgAway>=0.25){s+=15;r.push(`ΔxG +${(d.xgHome+d.xgAway).toFixed(2)}`);}
-  return {code:'LATE_GOAL',label:'🔥 Late Goal',score:clamp(s),reasons:r};
+  return {code:'LATE_GOAL',label:'⚡ Late Goal',score:clamp(s),reasons:r};
 }
 
 function equalizer(c:Stats,d:any):Signal{
