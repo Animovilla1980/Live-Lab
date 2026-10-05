@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import {getSupabaseAdmin} from '@/lib/supabase-server';
 
 export const dynamic='force-dynamic';
@@ -22,12 +23,13 @@ export default async function PaperPage(){
   const wins=closed.filter(x=>Number(x.net_pnl||0)>0).length;
   const losses=closed.filter(x=>Number(x.net_pnl||0)<0).length;
   return <>
-    <header className="header"><div><h2>Paper Exchange</h2><div className="muted">AUTO · nessun ordine reale inviato a Betfair</div></div><span className="badge"><span className="dot"/>PAPER AUTO 0.6.0</span></header>
+    <header className="header"><div><h2>Paper Exchange</h2><div className="muted">AUTO · Fireball · Fireball Xtreme · Relay Reloaded · Reback Reloaded</div></div><span className="badge"><span className="dot"/>PAPER AUTO 0.7.0</span></header>
     <section className="cards">
       <K label="Cassa paper" value={eur(bank)} foot={`iniziale ${eur(start)}`}/>
       <K label="P/L netto" value={`${pnl>=0?'+':''}${eur(pnl)}`} foot={`ROI ${roi>=0?'+':''}${roi.toFixed(2)}%`}/>
-      <K label="Posizioni aperte" value={String(open.length)} foot="Goal Pressure AUTO"/>
+      <K label="Posizioni aperte" value={String(open.length)} foot="tutte le strategie"/>
       <K label="Chiuse" value={String(closed.length)} foot={`${wins} win · ${losses} loss`}/>
+      <K label="Archivio" value="Analytics" foot="dettaglio completo"/>
     </section>
 
     <section className="grid2">
@@ -37,15 +39,17 @@ export default async function PaperPage(){
         <R n="A+" t={`Tier A score ≥ ${settings?.tier_a_strong_score??95} · ${pct(settings?.tier_a_strong_pct)}`}/>
         <R n="MAX" t={`Tetto assoluto · ${pct(settings?.max_stake_pct)} per operazione`}/>
       </div></div>
-      <div className="card panel"><h3>🔥 Goal Pressure · esecuzione</h3><div className="rules">
-        <R n="1" t="1/4 dello stake alla quota Exchange dell'alert"/>
-        <R n="2" t={`2ª tranche a +${settings?.goal_pressure_tick_gap??25} tick`}/>
-        <R n="3" t={`3ª tranche a +${2*Number(settings?.goal_pressure_tick_gap??25)} tick`}/>
-        <R n="4" t={`4ª tranche a +${3*Number(settings?.goal_pressure_tick_gap??25)} tick`}/>
-      </div><p className="muted" style={{fontSize:12,marginTop:12}}>Le tranche non abbinate vengono cancellate al gol. Il P/L paper usa la quota lay disponibile dopo il gol e applica commissione {pct(settings?.commission_pct)}.</p></div>
+      <div className="card panel"><h3>Motore strategie corso</h3><div className="rules">
+        <R n="🔥" t="Fireball · 4 tranche ogni +25 tick"/>
+        <R n="⚡" t="Fireball Xtreme · 50% main + 50% fail-safe"/>
+        <R n="🔄" t="Relay Reloaded · LAY 50/50 e cashout sull'equalizer"/>
+        <R n="👑" t="Reback Reloaded · BACK favorita + reback / recovery sulla X"/>
+      </div><p className="muted" style={{fontSize:12,marginTop:12}}>Commissione paper applicata ai profitti: {pct(settings?.commission_pct)}. Nessun ordine reale viene inviato a Betfair.</p></div>
     </section>
 
-    <section className="card panel"><h3>Operazioni paper</h3>{trades.length?<div className="tableWrap"><table className="table"><thead><tr><th>Stato</th><th>Partita</th><th>Strategia</th><th>Tier</th><th>Stake</th><th>Quota media</th><th>P/L</th></tr></thead><tbody>{trades.map(t=><tr key={t.id}><td>{t.status}</td><td>{t.home_team} – {t.away_team}</td><td>{t.strategy_label||t.strategy_code}</td><td>{t.alert_tier} · {t.strategy_score}/100</td><td>{eur(t.stake_filled||t.stake_total)} <span className="muted">({pct(t.stake_pct)})</span></td><td>{t.avg_price?Number(t.avg_price).toFixed(2):t.initial_price?Number(t.initial_price).toFixed(2):'—'}</td><td>{t.net_pnl==null?'—':`${Number(t.net_pnl)>=0?'+':''}${eur(t.net_pnl)}`}</td></tr>)}</tbody></table></div>:<div className="empty">Nessuna operazione paper ancora registrata.</div>}</section>
+    <section className="card panel" style={{marginBottom:18}}><div className="matchrow"><div><h3 style={{marginBottom:6}}>Archivio & Analytics</h3><div className="muted">Performance per strategia, strike rate, ROI, drawdown, tranche abbinate e motivi di chiusura.</div></div><Link href="/archivio" className="badge">Apri Analytics →</Link></div></section>
+
+    <section className="card panel"><h3>Operazioni paper recenti</h3>{trades.length?<div className="tableWrap"><table className="table"><thead><tr><th>Stato</th><th>Partita</th><th>Strategia</th><th>Tier</th><th>Stake</th><th>Quota media</th><th>P/L</th></tr></thead><tbody>{trades.map(t=><tr key={t.id}><td>{t.status}</td><td>{t.home_team} – {t.away_team}</td><td>{t.strategy_label||t.strategy_code}</td><td>{t.alert_tier} · {t.strategy_score}/100</td><td>{eur(t.stake_filled||t.stake_total)} <span className="muted">({pct(t.stake_pct)})</span></td><td>{t.avg_price?Number(t.avg_price).toFixed(2):t.initial_price?Number(t.initial_price).toFixed(2):'—'}</td><td>{t.net_pnl==null?'—':`${Number(t.net_pnl)>=0?'+':''}${eur(t.net_pnl)}`}</td></tr>)}</tbody></table></div>:<div className="empty">Nessuna operazione paper ancora registrata.</div>}</section>
   </>;
 }
 function K({label,value,foot}:{label:string,value:string,foot:string}){return <div className="card kpi"><div className="label">{label}</div><div className="value">{value}</div><div className="foot">{foot}</div></div>}
