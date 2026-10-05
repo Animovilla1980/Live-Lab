@@ -2,7 +2,7 @@
 <html lang="it">
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Live Lab</title><link rel="stylesheet" href="popup.css"></head>
 <body>
-  <header><div class="brand">LIVE LAB</div><div class="sub">Diretta Watch · 0.5.1 · Strategy Radar</div></header>
+  <header><div class="brand">LIVE LAB</div><div class="sub">Diretta Watch · 0.6.0 · Paper Exchange AUTO</div></header>
   <main>
     <div class="statusrow"><span id="dot" class="dot"></span><strong id="status">Caricamento…</strong></div>
     <label class="switchrow"><span>Monitoraggio</span><input id="enabled" type="checkbox"></label>
@@ -16,7 +16,16 @@
         <div>👑 <b>Favorite Push</b> · favorita bloccata o sotto di uno</div>
       </div>
       <div class="statbadge">🎯 <span id="overallStat"></span></div>
-      <p class="hint">Ogni strategia ha ora un'icona dedicata negli alert Telegram e nelle notifiche Chrome. Snowball e strategie Under restano escluse.</p>
+      <p class="hint">Snowball e strategie Under restano escluse.</p>
+    </section>
+
+    <section>
+      <h3>🧪 Paper Exchange AUTO</h3>
+      <label class="switchrow"><span>Paper AUTO</span><input id="paperAuto" type="checkbox"></label>
+      <label>Betfair App Key<input id="betfairAppKey" type="password" placeholder="App Key Betfair"></label>
+      <p id="betfairStatus" class="hint">Accedi a Betfair in Chrome: Live Lab legge automaticamente la sessione, senza salvare username/password.</p>
+      <div class="miniActions"><button id="testBetfair" class="tiny">Test Betfair</button></div>
+      <p class="hint">Goal Pressure: stake 5% Tier B · 7,5% Tier A · 10% Tier A forte, sempre max 10% della cassa. Ingresso 4 tranche: alert, +25, +50, +75 tick.</p>
     </section>
 
     <section>
@@ -30,7 +39,7 @@
       <h3>Live Lab Web · motore centrale</h3>
       <label>URL Live Lab<input id="liveLabApiUrl" type="url" placeholder="https://live-lab.vercel.app"></label>
       <label>Ingest Key<input id="liveLabIngestKey" type="password" placeholder="stessa LIVE_LAB_INGEST_KEY di Vercel"></label>
-      <p id="apiStatus" class="hint">Il motore centrale calcola score, delta xG e Forebet Gate.</p>
+      <p id="apiStatus" class="hint">Il motore centrale calcola score, delta xG, Forebet Gate e Paper P/L.</p>
     </section>
 
     <section>
