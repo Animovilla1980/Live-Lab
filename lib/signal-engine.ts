@@ -1,8 +1,8 @@
-export const ENGINE_VERSION='0.5.1';
+export const ENGINE_VERSION='0.7.0';
 
 type Stats={minute:number;homeScore:number;awayScore:number;xgHome?:number|null;xgAway?:number|null;sotHome?:number|null;sotAway?:number|null;possessionHome?:number|null;possessionAway?:number|null;dangerousHome?:number|null;dangerousAway?:number|null};
 type Forebet={predictedScore?:string|null;prediction1x2?:string|null;p1?:number|null;p2?:number|null};
-export type Signal={code:string;label:string;score:number;reasons:string[]};
+export type Signal={code:string;label:string;score:number;reasons:string[];meta?:Record<string,any>};
 
 const n=(v:any)=>Number.isFinite(Number(v))?Number(v):0;
 const clamp=(v:number)=>Math.max(0,Math.min(100,Math.round(v)));
@@ -16,7 +16,7 @@ function goalPressure(c:Stats,d:any):Signal{
   if(sot>=3){s+=15;r.push(`SOT ${sot}`);} if(sot>=5)s+=7;
   if(d.xgHome+d.xgAway>=0.22){s+=18;r.push(`ΔxG +${(d.xgHome+d.xgAway).toFixed(2)}`);}
   if(d.sotHome+d.sotAway>=1)s+=8;
-  return {code:'GOAL_PRESSURE',label:'🔥 Goal Pressure',score:clamp(s),reasons:r};
+  return {code:'GOAL_PRESSURE',label:'🔥 Goal Pressure',score:clamp(s),reasons:r,meta:{courseStrategy:'FIREBALL'}};
 }
 
 function lateGoal(c:Stats,d:any):Signal{
@@ -26,7 +26,7 @@ function lateGoal(c:Stats,d:any):Signal{
   if(xg>=1.25){s+=17;r.push(`xG ${xg.toFixed(2)}`);} if(xg>=1.8)s+=7;
   if(sot>=4){s+=15;r.push(`SOT ${sot}`);} if(sot>=7)s+=6;
   if(d.xgHome+d.xgAway>=0.25){s+=15;r.push(`ΔxG +${(d.xgHome+d.xgAway).toFixed(2)}`);}
-  return {code:'LATE_GOAL',label:'⚡ Late Goal',score:clamp(s),reasons:r};
+  return {code:'LATE_GOAL',label:'⚡ Late Goal',score:clamp(s),reasons:r,meta:{courseStrategy:'FIREBALL_XTREME',currentGoals:c.homeScore+c.awayScore}};
 }
 
 function equalizer(c:Stats,d:any):Signal{
@@ -37,7 +37,7 @@ function equalizer(c:Stats,d:any):Signal{
   if(tsot>=osot+2||share(tsot,osot)>=0.62){s+=20;r.push('SOT favorevoli a chi insegue');}
   if(poss>=58){s+=10;r.push(`possesso ${Math.round(poss)}%`);}
   if(dxg>=0.16){s+=20;r.push(`ΔxG +${dxg.toFixed(2)}`);}
-  return {code:'EQUALIZER',label:'🔄 Equalizer',score:clamp(s),reasons:r};
+  return {code:'EQUALIZER',label:'🔄 Equalizer',score:clamp(s),reasons:r,meta:{courseStrategy:'RELAY_RELOADED',trailingSide:home?'HOME':'AWAY',leaderSide:home?'AWAY':'HOME'}};
 }
 
 function favoritePush(c:Stats,d:any,f:Forebet):Signal{
@@ -50,7 +50,7 @@ function favoritePush(c:Stats,d:any,f:Forebet):Signal{
   if(fsot>=osot+2||share(fsot,osot)>=0.65){s+=18;r.push('dominio SOT favorita');}
   if(poss>=60){s+=10;r.push(`possesso ${Math.round(poss)}%`);}
   if(dxg>=0.18){s+=18;r.push(`ΔxG +${dxg.toFixed(2)}`);}
-  return {code:'FAVORITE_PUSH',label:'👑 Favorite Push',score:clamp(s),reasons:r};
+  return {code:'FAVORITE_PUSH',label:'👑 Favorite Push',score:clamp(s),reasons:r,meta:{courseStrategy:'REBACK_RELOADED',favoriteSide:fav==='home'?'HOME':'AWAY',favoriteGoalDiff:fd,courseEntryEligible:fd===0}};
 }
 
 export function evaluateSignals(c:Stats,p:Stats|null,f:Forebet={}){
