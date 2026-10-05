@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "Live Lab — Diretta Watch",
-  "version": "0.5.0",
-  "description": "Monitora Diretta.it e alimenta il Live Lab Strategy Radar: Goal Pressure, Late Goal, Equalizer e Favorite Push, con Forebet Gate e Telegram.",
+  "version": "0.5.1",
+  "description": "Monitora Diretta.it e alimenta il Live Lab Strategy Radar: Goal Pressure, Late Goal, Equalizer e Favorite Push, con icone dedicate, Forebet Gate e Telegram.",
   "permissions": ["storage","notifications","tabs","scripting"],
   "host_permissions": ["https://www.diretta.it/*","https://diretta.it/*","https://api.telegram.org/*","https://*/*"],
   "background": {"service_worker":"background.js","type":"module"},
