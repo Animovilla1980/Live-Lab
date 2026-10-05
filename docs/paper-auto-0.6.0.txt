@@ -1,0 +1,3 @@
+Live Lab 0.6.0 Paper Exchange AUTO
+Goal Pressure: 4 tranches, 25 Betfair ticks, stake 5/7.5/10% with 10% cap.
+Paper only: no real Exchange orders.
