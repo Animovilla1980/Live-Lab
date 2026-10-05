@@ -25,7 +25,8 @@ export async function POST(req:NextRequest){
   if(alert.forebet_gate_status==='BLOCK'||alert.outcome==='BLOCKED')return NextResponse.json({ok:true,paper:{blocked:true}});
   if(p.strategyCode!=='GOAL_PRESSURE')return NextResponse.json({ok:true,paper:{status:'WAITING_STRATEGY_RULE',strategyCode:p.strategyCode}});
 
-  let {data:trade}=await sb.from('live_lab_paper_trades').select('*').eq('match_key',p.matchKey).eq('strategy_code',p.strategyCode).maybeSingle();
+  const existing=await sb.from('live_lab_paper_trades').select('*').eq('match_key',p.matchKey).eq('strategy_code',p.strategyCode).maybeSingle();
+  let trade:any=existing.data??null;
   const back=num(p.backPrice),lay=num(p.layPrice);
 
   if(!trade){
@@ -39,24 +40,25 @@ export async function POST(req:NextRequest){
       stake_filled:0,initial_price:back,entry_minute:p.minute,entry_home_score:p.homeScore,entry_away_score:p.awayScore,last_price:back,last_minute:p.minute,
       last_home_score:p.homeScore,last_away_score:p.awayScore
     }).select('*').single();
-    if(createError)return NextResponse.json({ok:false,error:createError.message},{status:500});
-    trade=created;
+    if(createError||!created)return NextResponse.json({ok:false,error:createError?.message||'paper trade create failed'},{status:500});
+    trade=created as any;
     const orders=goalPressureOrders(plan.total,back,Number(settings.goal_pressure_tranches),Number(settings.goal_pressure_tick_gap));
     const rows=orders.map(o=>({trade_id:trade.id,tranche_no:o.trancheNo,target_price:o.targetPrice,stake:o.stake,status:o.status,matched_price:o.status==='MATCHED'?o.targetPrice:null,matched_at:o.status==='MATCHED'?new Date().toISOString():null}));
     const {error:ordersError}=await sb.from('live_lab_paper_orders').insert(rows);if(ordersError)return NextResponse.json({ok:false,error:ordersError.message},{status:500});
   }
 
-  const {data:orders=[]}=await sb.from('live_lab_paper_orders').select('*').eq('trade_id',trade.id).order('tranche_no');
+  const {data:ordersData}=await sb.from('live_lab_paper_orders').select('*').eq('trade_id',trade.id).order('tranche_no');
+  const orders:any[]=ordersData??[];
   const entryGoals=Number(trade.entry_home_score||0)+Number(trade.entry_away_score||0),nowGoals=Number(p.homeScore||0)+Number(p.awayScore||0);
 
   if(trade.status==='OPEN'&&nowGoals===entryGoals&&back){
     for(const o of orders.filter((x:any)=>x.status==='PENDING'&&Number(x.target_price)<=back)){
       await sb.from('live_lab_paper_orders').update({status:'MATCHED',matched_price:Number(o.target_price),matched_at:new Date().toISOString()}).eq('id',o.id);
-      o.status='MATCHED';o.matched_price=Number(o.target_price);
     }
   }
 
-  const {data:freshOrders=[]}=await sb.from('live_lab_paper_orders').select('*').eq('trade_id',trade.id).order('tranche_no');
+  const {data:freshData}=await sb.from('live_lab_paper_orders').select('*').eq('trade_id',trade.id).order('tranche_no');
+  const freshOrders:any[]=freshData??[];
   const matched=freshOrders.filter((o:any)=>o.status==='MATCHED');
   const filled=money(matched.reduce((a:number,o:any)=>a+Number(o.stake||0),0));
   const avg=weightedAveragePrice(freshOrders as any);
