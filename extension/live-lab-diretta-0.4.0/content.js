@@ -57,10 +57,11 @@
       const timeEl = row.querySelector('.event__stage--block, .event__stage, .event__time, [class*="event__time"], [class*="stage"]');
       const minute = minuteFrom(text(timeEl)); if (!Number.isFinite(minute)) continue;
       const [homeScore, awayScore] = scoreFromRow(row);
-      if (!Number.isFinite(homeScore) || !Number.isFinite(awayScore) || !isRadarCandidate(minute, homeScore, awayScore)) continue;
-      chrome.runtime.sendMessage({ type: 'LIVE_CANDIDATE', match: {
-        id: matchId(row), home: teamName(row, 'home'), away: teamName(row, 'away'), league: findLeague(row), minute, homeScore, awayScore, url: matchUrl(row)
-      }});
+      if (!Number.isFinite(homeScore) || !Number.isFinite(awayScore)) continue;
+      const match={id:matchId(row),home:teamName(row,'home'),away:teamName(row,'away'),league:findLeague(row),minute,homeScore,awayScore,url:matchUrl(row)};
+      chrome.runtime.sendMessage({type:'LIVE_SCORE',match});
+      if (!isRadarCandidate(minute, homeScore, awayScore)) continue;
+      chrome.runtime.sendMessage({ type: 'LIVE_CANDIDATE', match });
     }
   }
 
