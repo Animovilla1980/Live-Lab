@@ -63,17 +63,23 @@ export async function POST(req:NextRequest){
   const filled=money(matched.reduce((a:number,o:any)=>a+Number(o.stake||0),0));
   const avg=weightedAveragePrice(freshOrders as any);
 
-  if(trade.status==='OPEN'&&nowGoals>entryGoals&&lay&&filled>0&&avg){
+  const entryMinute=Number(trade.entry_minute||0);
+  const courseExitMinute=entryMinute>=30?80:70;
+  const goalExit=nowGoals>entryGoals;
+  const timeExit=nowGoals===entryGoals&&Number(p.minute)>=courseExitMinute;
+
+  if(trade.status==='OPEN'&&(goalExit||timeExit)&&lay&&filled>0&&avg){
     const gross=money(filled*(avg/lay-1));
     const commission=gross>0?money(gross*Number(settings.commission_pct)/100):0;
     const net=money(gross-commission);
+    const closeReason=goalExit?'GOAL_CASHOUT_PAPER':'COURSE_TIME_EXIT_PAPER';
     await sb.from('live_lab_paper_orders').update({status:'CANCELLED',cancelled_at:new Date().toISOString()}).eq('trade_id',trade.id).eq('status','PENDING');
-    await sb.from('live_lab_paper_trades').update({status:'CLOSED',stake_filled:filled,avg_price:avg,last_price:lay,last_minute:p.minute,last_home_score:p.homeScore,last_away_score:p.awayScore,gross_pnl:gross,commission,net_pnl:net,close_reason:'GOAL_CASHOUT_PAPER',closed_at:new Date().toISOString(),updated_at:new Date().toISOString()}).eq('id',trade.id);
+    await sb.from('live_lab_paper_trades').update({status:'CLOSED',stake_filled:filled,avg_price:avg,last_price:lay,last_minute:p.minute,last_home_score:p.homeScore,last_away_score:p.awayScore,gross_pnl:gross,commission,net_pnl:net,close_reason:closeReason,closed_at:new Date().toISOString(),updated_at:new Date().toISOString()}).eq('id',trade.id);
     const bankrollAfter=money(Number(settings.bankroll_current)+net);
     await sb.from('live_lab_paper_settings').update({bankroll_current:bankrollAfter,updated_at:new Date().toISOString()}).eq('id',1);
-    return NextResponse.json({ok:true,paper:{status:'CLOSED',tradeId:trade.id,stakePct:Number(trade.stake_pct),stakeTotal:Number(trade.stake_total),stakeFilled:filled,avgPrice:avg,exitLayPrice:lay,grossPnl:gross,commission,netPnl:net,bankrollAfter}});
+    return NextResponse.json({ok:true,paper:{status:'CLOSED',tradeId:trade.id,stakePct:Number(trade.stake_pct),stakeTotal:Number(trade.stake_total),stakeFilled:filled,avgPrice:avg,exitLayPrice:lay,grossPnl:gross,commission,netPnl:net,bankrollAfter,closeReason,courseExitMinute}});
   }
 
   await sb.from('live_lab_paper_trades').update({stake_filled:filled,avg_price:avg,last_price:back??trade.last_price,last_minute:p.minute,last_home_score:p.homeScore,last_away_score:p.awayScore,updated_at:new Date().toISOString()}).eq('id',trade.id);
-  return NextResponse.json({ok:true,paper:{status:trade.status,tradeId:trade.id,stakePct:Number(trade.stake_pct),stakeTotal:Number(trade.stake_total),stakeFilled:filled,avgPrice:avg,orders:freshOrders.map((o:any)=>({tranche:o.tranche_no,stake:Number(o.stake),targetPrice:Number(o.target_price),status:o.status}))}});
+  return NextResponse.json({ok:true,paper:{status:trade.status,tradeId:trade.id,stakePct:Number(trade.stake_pct),stakeTotal:Number(trade.stake_total),stakeFilled:filled,avgPrice:avg,courseExitMinute,orders:freshOrders.map((o:any)=>({tranche:o.tranche_no,stake:Number(o.stake),targetPrice:Number(o.target_price),status:o.status}))}});
 }
