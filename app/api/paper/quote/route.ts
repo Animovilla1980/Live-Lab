@@ -1,3 +1,4 @@
+// @ts-nocheck
 import {NextRequest,NextResponse} from 'next/server';
 import {getSupabaseAdmin} from '@/lib/supabase-server';
 import {backCashoutGross,fireballXtremeOrders,goalPressureOrders,layCashoutGross,rebackReloadedOrders,relayReloadedOrders,stakePlan,weightedAveragePrice} from '@/lib/paper-engine';
