@@ -1,6 +1,6 @@
 import {NextRequest,NextResponse} from 'next/server';
 import {createHash,timingSafeEqual} from 'node:crypto';
-import {getSupabaseAdmin} from '@/lib/supabase-server';
+import {getSupabaseIntelligenceAdmin as getSupabaseAdmin} from '@/lib/supabase-server';
 import {parsePicks,STRATEGIES,filterPicks,stats,DEFAULT_FILTERS, type StrategyId,type Pick,type Filters} from '@/lib/inplayguru';
 export const runtime='nodejs';
 export const dynamic='force-dynamic';
@@ -24,7 +24,7 @@ export async function POST(req:NextRequest){
     if(b.action==='health'){
       const {error}=await sb.from('live_lab_ipg_picks').select('pick_key').limit(1);
       const configuredKey=process.env.SUPABASE_SERVICE_ROLE_KEY!;let configuredRole='unknown';try{configuredRole=JSON.parse(Buffer.from(configuredKey.split('.')[1]||'','base64url').toString()).role||'unknown';}catch{configuredRole=configuredKey.startsWith('sb_publishable_')?'publishable':configuredKey.startsWith('sb_secret_')?'secret':'unknown';}
-      return json({databaseHost:new URL(process.env.NEXT_PUBLIC_SUPABASE_URL!).hostname,configuredRole,ready:!error,error:error?.message??null});
+      return json({databaseHost:new URL(process.env.NEXT_PUBLIC_SUPABASE_URL!).hostname,configuredRole,privateGateway:!!process.env.LIVE_LAB_BACKEND_URL,ready:!error,error:error?.message??null});
     }
     if(b.action==='load'){
       const offset=Number(b.offset||0),limit=b.includeRaw?250:500;
