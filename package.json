@@ -1,15 +1,16 @@
 {
   "name": "live-lab",
-  "version": "0.1.0",
+  "version": "0.8.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "tsc --noEmit",
+    "test": "node --experimental-strip-types --test tests/inplayguru.test.mjs"
   },
   "dependencies": {
-    "@supabase/supabase-js": "^2.57.4",
+    "@supabase/supabase-js": "2.57.4",
     "next": "16.2.11",
     "react": "19.2.8",
     "react-dom": "19.2.8"
@@ -20,5 +21,7 @@
     "@types/react-dom": "^19.2.2",
     "typescript": "^5.9.2"
   },
-  "engines": { "node": "22.x" }
+  "engines": {
+    "node": "22.x"
+  }
 }

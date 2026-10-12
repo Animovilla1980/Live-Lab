@@ -1,36 +1,14 @@
-# Deploy rapido — Live Lab Web 0.1.0
+# Aggiornare Live Lab — 0.8.0
 
-## 1) Supabase
-Usa lo stesso progetto di Forebet Lab.
-Apri SQL Editor e lancia:
+1. Su Supabase, apri SQL Editor nel progetto già utilizzato da Live Lab e lancia il contenuto di `supabase/migrations/20261012220520_inplayguru_intelligence.sql`. Le altre migration sono già presenti per il vecchio progetto e non vanno rieseguite.
+2. Estrai lo ZIP. Su GitHub, repository **Animovilla1980/Live-Lab**, carica il contenuto della cartella della release. Mantieni i file esistenti non sovrascritti.
+3. Vercel esegue il deploy dal repository collegato. Framework Next.js, Build `npm run build`, Node 22.x. Non cambiare Output Directory rispetto alla configurazione Next.js.
+4. Apri la Home e verifica «INPLAYGURU INTELLIGENCE · 0.8.0».
+5. Per entrare usa il valore già configurato come `LIVE_LAB_INGEST_KEY`. Se vuoi una chiave separata aggiungi `LIVE_LAB_ACCESS_KEY` nelle variabili Vercel e fai redeploy. Non usare il valore `SUPABASE_SERVICE_ROLE_KEY` come password della pagina.
+6. Importa i CSV InPlayGuru con anteprima e conferma. Il nome originale identifica automaticamente la strategia. Per le tre strategie insieme usa «Automatica dal nome originale».
 
-`supabase/migrations/001_live_lab_core.sql`
+Nessun invio Telegram e nessuna installazione di estensione sono necessari per Intelligence. Il vecchio software Exchange resta invariato.
 
-La migration crea solo tabelle/view `live_lab_*` e non modifica Forebet Lab.
+Se compare «Database Intelligence non pronto», controlla di aver eseguito la nuova migration nel medesimo progetto indicato da `NEXT_PUBLIC_SUPABASE_URL`. Se compare «Chiave di accesso non corretta», verifica quale chiave ha precedenza: ACCESS_KEY se presente, altrimenti INGEST_KEY.
 
-## 2) GitHub
-Crea un nuovo repository `live-lab` e carica il contenuto della cartella `live-lab-web-0.1.0`.
-
-## 3) Vercel
-Importa il nuovo repo e aggiungi:
-
-- `NEXT_PUBLIC_SUPABASE_URL`
-- `SUPABASE_SERVICE_ROLE_KEY`
-- `LIVE_LAB_INGEST_KEY` (scegli una stringa lunga casuale)
-- `FOREBET_MATCHES_TABLE=forebet_matches`
-
-Poi deploy.
-
-## 4) Estensione 0.4
-Solo dopo che Vercel è online:
-- installa `extension/live-lab-diretta-0.4.0` da `chrome://extensions`;
-- mantieni Bot Token e Chat ID già usati;
-- inserisci `URL Live Lab` = URL Vercel;
-- inserisci `Ingest Key` = stesso valore di `LIVE_LAB_INGEST_KEY`.
-
-## Forebet Gate
-- `0-0`, `1-0`, `0-1` -> BLOCK -> niente Telegram.
-- qualunque RE con almeno 2 gol (`2-0`, `0-2`, `3-0`, `0-3`, `1-1`, ecc.) -> PASS.
-- RE mancante/non trovato -> UNKNOWN -> alert consentito.
-
-Tutti i trigger, inclusi quelli bloccati, vengono salvati in `live_lab_alerts` per confrontare in seguito l'efficacia reale del filtro.
+La release è stata verificata localmente. Durante la pubblicazione automatica vengono verificati anche migration e deploy nel progetto esistente.
