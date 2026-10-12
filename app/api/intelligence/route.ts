@@ -23,7 +23,8 @@ export async function POST(req:NextRequest){
     const b=JSON.parse(body);
     if(b.action==='health'){
       const {error}=await sb.from('live_lab_ipg_picks').select('pick_key').limit(1);
-      return json({databaseHost:new URL(process.env.NEXT_PUBLIC_SUPABASE_URL!).hostname,ready:!error,error:error?.message??null});
+      const configuredKey=process.env.SUPABASE_SERVICE_ROLE_KEY!;let configuredRole='unknown';try{configuredRole=JSON.parse(Buffer.from(configuredKey.split('.')[1]||'','base64url').toString()).role||'unknown';}catch{configuredRole=configuredKey.startsWith('sb_publishable_')?'publishable':configuredKey.startsWith('sb_secret_')?'secret':'unknown';}
+      return json({databaseHost:new URL(process.env.NEXT_PUBLIC_SUPABASE_URL!).hostname,configuredRole,ready:!error,error:error?.message??null});
     }
     if(b.action==='load'){
       const offset=Number(b.offset||0),limit=b.includeRaw?250:500;
