@@ -21,6 +21,10 @@ export async function POST(req:NextRequest){
     // Limit before JSON parsing: Vercel also enforces its own body limit.
     const body=await req.text();if(Buffer.byteLength(body)>3000000)return json({error:'Import troppo grande (massimo 3 MB): suddividi i CSV.'},413);
     const b=JSON.parse(body);
+    if(b.action==='health'){
+      const {error}=await sb.from('live_lab_ipg_picks').select('pick_key').limit(1);
+      return json({databaseHost:new URL(process.env.NEXT_PUBLIC_SUPABASE_URL!).hostname,ready:!error,error:error?.message??null});
+    }
     if(b.action==='load'){
       const offset=Number(b.offset||0),limit=b.includeRaw?250:500;
       if(!Number.isInteger(offset)||offset<0||offset>100000)return json({error:'Pagina non valida'},400);
